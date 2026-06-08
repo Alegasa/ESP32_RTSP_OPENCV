@@ -365,6 +365,11 @@ static const char *_MORPH_INDEX_HTML = R"rawliteral(
     ];
 
     function getStreamUrl() {
+      // Si estamos usando Ngrok, el host no tendrá puertos y manejará el flujo directo
+      if (window.location.hostname.includes("ngrok")) {
+        return window.location.protocol + "//" + window.location.host + "/stream";
+      }
+      // Si estamos en red local, mantiene tu lógica original del puerto + 1 (Puerto 81)
       const streamPort = Number(window.location.port || 80) + 1;
       return window.location.protocol + "//" + window.location.hostname + ":" + streamPort + "/stream";
     }
@@ -1301,11 +1306,14 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &capture_uri);
     httpd_register_uri_handler(camera_httpd, &bmp_uri);
 
+    httpd_register_uri_handler(camera_httpd, &stream_uri);
+
     httpd_register_uri_handler(camera_httpd, &xclk_uri);
     httpd_register_uri_handler(camera_httpd, &reg_uri);
     httpd_register_uri_handler(camera_httpd, &greg_uri);
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
+    
   }
 
   config.server_port += 1;
